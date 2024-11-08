@@ -1,1 +1,0 @@
-STATIC_API_KEY = '058e823a-cdc7-4f75-bfd2-9c9741a3ea1a'
