@@ -16,7 +16,7 @@ from PyQt6.QtGui import QDesktopServices
 class District(QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi("design.ui", self)
+        uic.loadUi("designs/design.ui", self)
         # get_info_from_request('парк', [55.769964061133756, 37.33026865917969])
         self.listWidget.itemClicked.connect(self.openWindow)
 
@@ -53,7 +53,7 @@ class District(QMainWindow):
         self.widget = QtWidgets.QWidget()
         row = self.listWidget.row(item)
         self.widget.setWindowTitle(f'{row}')
-        uic.loadUi("places.ui", self.widget)
+        uic.loadUi("designs/places.ui", self.widget)
         locate = self.places_for_listWidget[row]['coords']
         print(locate, type(locate))
         image = APIHandler.get_image(coord=[float(elem) for elem in locate.split(',')], point=(locate,), z=14, n=row)
@@ -81,7 +81,7 @@ class District(QMainWindow):
         QDesktopServices.openUrl(url)
 
 
-    def add_place(self, place, locate=0, z=9):
+    def add_place(self, place, locate=0, z=None):
         self.listWidget.clear()
         if locate == 0:
             locate = self.locate_user()
@@ -94,7 +94,7 @@ class District(QMainWindow):
         for index, elem in enumerate(self.places_for_listWidget[:], 1):
             self.listWidget.addItem(str(index) + ". " + elem["title"])
 
-    def get_image_(self, locate=0, p=0, z=9):
+    def get_image_(self, locate=0, p=0, z=None):
         if locate == 0:
             locate = self.locate_user()
         if locate is None:

@@ -6,14 +6,19 @@ import json
 class APIHandler():
     def get_image(coord, point=(), z=9, n=0):
         point = tuple(point)
+        params = {
+            "apikey": STATIC_API_KEY,
+            #"ll": ",".join([str(elem) for elem in coord]),
+            'pt': '~'.join([f'{tuple(point)[i]},pm2rdl{i + 1 + n}' for i in range(len(point))]),
+        }
+        if z is not None:
+            params['z'] = z
+        if not point:
+            params['ll'] = ",".join([str(elem) for elem in coord])
+
         request = requests.get(
             url="https://static-maps.yandex.ru/v1",
-            params={
-                "apikey": STATIC_API_KEY,
-                "ll": ",".join([str(elem) for elem in coord]),
-                "z": z,
-                'pt': '~'.join([f'{tuple(point)[i]},pm2rdl{i + 1 + n}' for i in range(len(point))]),
-            },
+            params=params,
         )
         print(request.status_code)
 
@@ -30,7 +35,7 @@ class APIHandler():
                 "q": place,
                 "lat": coordinates[1],
                 "lon": coordinates[0],
-                "radius": 10000000,
+                "radius": 20000,
             },
         )
         print(response.status_code)
