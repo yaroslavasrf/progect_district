@@ -1,0 +1,20 @@
+import requests
+class Llminference():
+    def __init__(self):
+        self.url = 'https://13fe-188-130-155-167.ngrok-free.app'
+        #self.url = 'https://httpbin.org/post'
+
+
+    def post(self, text=''):
+        #request = requests.post(self.url + 'summarize', json={'input': text})
+
+        #print(request.content)
+        # if request.status_code == 200:
+        #     return request.json
+        return 'Не удалось суммаризировать текст'
+        #http://summarizebot.com/
+        #return 'huhkj'
+
+
+model = Llminference()
+model.post()

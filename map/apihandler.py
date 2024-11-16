@@ -3,11 +3,16 @@ import requests
 import json
 
 
-class APIHandler():
-    def get_image(coord, point=(), z=9, n=0):
+class APIHandler(object):
+    def __init__(self, arg):
+        self.url_for_image = 'https://static-maps.yandex.ru/v1'
+        self.url_for_info = 'https://kudago.com/public-api/v1.4/search/'
+        self.static_api_key = STATIC_API_KEY
+
+    def get_image(self, coord, point=(), z=9, n=0):
         point = tuple(point)
         params = {
-            "apikey": STATIC_API_KEY,
+            "apikey": self.static_api_key,
             #"ll": ",".join([str(elem) for elem in coord]),
             'pt': '~'.join([f'{tuple(point)[i]},pm2rdl{i + 1 + n}' for i in range(len(point))]),
         }
@@ -17,7 +22,7 @@ class APIHandler():
             params['ll'] = ",".join([str(elem) for elem in coord])
 
         request = requests.get(
-            url="https://static-maps.yandex.ru/v1",
+            url=self.url_for_image,
             params=params,
         )
         print(request.status_code)
@@ -27,10 +32,10 @@ class APIHandler():
 
         return None
 
-    def get_info_from_request(place, coordinates):
+    def get_info_from_request(self, place, coordinates):
         print(place, coordinates)
         response = requests.get(
-            url="https://kudago.com/public-api/v1.4/search/",
+            url=self.url_for_info,
             params={
                 "q": place,
                 "lat": coordinates[1],
