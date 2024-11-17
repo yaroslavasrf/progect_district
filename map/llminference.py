@@ -3,7 +3,6 @@ import logging
 class Llminference():
     def __init__(self):
         self.url = 'https://13fe-188-130-155-167.ngrok-free.app'
-        #self.url = 'https://httpbin.org/post'
 
 
     def post(self, text=''):
@@ -16,9 +15,5 @@ class Llminference():
         #                     format="%(asctime)s %(levelname)s %(message)s")
         # logging.warning("summarize warning")
         # return 'Не удалось суммаризировать текст'
-        #http://summarizebot.com/
         return 'huhkj'
 
-
-model = Llminference()
-model.post()
