@@ -1,18 +1,18 @@
 import sys
-from secret import STATIC_API_KEY
-import requests
 import geocoder
-import json
+import logging
+import sqlite3
 from apihandler import APIHandler
 from llminference import Llminference
 from PyQt6 import uic
-from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QSlider
+from PyQt6.QtWidgets import QMainWindow, QSlider, QApplication
 from PyQt6 import QtCore, QtWidgets, QtGui
 from geopy.geocoders import Nominatim
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtCore import QUrl, QSize
-from PyQt6.QtGui import QDesktopServices, QIcon
-from math import sin, cos, acos, sqrt, atan2, radians
+from PyQt6.QtCore import QUrl
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QDesktopServices
+from math import sin, cos, sqrt, atan2, radians
+from favourite_places import FavouriteListWindow
 
 class District(QMainWindow):
     def __init__(self):
@@ -20,7 +20,6 @@ class District(QMainWindow):
         uic.loadUi("designs/design.ui", self)
         APIHandler.__init__(self, "District")
         self.listWidget.itemClicked.connect(self.openWindow)
-        #self.fav_list.itemClicked.connect(self.FavWindow)
 
         self.geo_button.setIcon(QtGui.QIcon('pic/location.png'))
         self.geo_button.setIconSize(QtCore.QSize(30, 30))
@@ -36,6 +35,14 @@ class District(QMainWindow):
         self.theatre_button.clicked.connect(lambda: self.add_place('театр'))
         self.park_button.clicked.connect(lambda: self.add_place('парк'))
 
+        self.favourites.clicked.connect(self.click_fav)
+
+        self.flag_fav_button = False
+
+    def click_fav(self):
+        self.dialog = FavouriteListWindow()
+        self.dialog.show()
+
 
     def link(self, url):
         url = QUrl(url)
@@ -47,6 +54,11 @@ class District(QMainWindow):
         self.widget.description.setText(str(res))
         pass
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Enter:
+            self.input_text()
+
+
 
     def openWindow(self, item):
         self.widget = QtWidgets.QWidget()
@@ -57,8 +69,10 @@ class District(QMainWindow):
         image = APIHandler.get_image(self, coord=[float(elem) for elem in self.locate.split(',')], point=(self.locate,), z=14,
                                      n=self.row)
         if image is None:
-            print("Не удалось получить изображение")
             self.image.setText('Не удалось получить изображение')
+            logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w",
+                                format="%(asctime)s %(levelname)s %(message)s")
+            logging.error("image error")
             return
 
         pixmap = QtGui.QPixmap()
@@ -67,6 +81,8 @@ class District(QMainWindow):
         pic = self.widget.photo
         pic.setPixmap(pixmap)
         pic.show()
+        if self.flag_fav_button == True:
+            self.widget.fav_button.setText('Это место уже в избранном')
         self.description = self.places_for_listWidget[self.row]['description']
         self.title = self.places_for_listWidget[self.row]['title']
         self.coord = [round(float(elem), 2) for elem in self.places_for_listWidget[self.row]['coords'].split(',')]
@@ -98,7 +114,9 @@ class District(QMainWindow):
         image = APIHandler.get_image(self, coord=[float(elem) for elem in self.locate.split(',')], point=(self.locate,),
                                      z=value, n=self.row)
         if image is None:
-            print("Не удалось получить изображение")
+            logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w",
+                                format="%(asctime)s %(levelname)s %(message)s")
+            logging.error("image error")
             self.image.setText('Не удалось получить изображение')
             return
 
@@ -128,7 +146,6 @@ class District(QMainWindow):
         place_width = radians(int(self.coord[1]))
         d_width = user_width - place_width
         d_longitude = user_longitude - place_longitude
-        #d = sin(d_place / 2) ** 2 + cos(rad_place_longitude) * cos(rad_place_width) * sin(d_user / 2) ** 2
         a = sin(d_longitude / 2) ** 2 + cos (user_longitude) * cos(place_longitude) * sin(d_width / 2) ** 2
         c = 2 * atan2(sqrt(a), sqrt(1 - a))
         distance = R * c
@@ -137,10 +154,22 @@ class District(QMainWindow):
 
 
     def add_fav(self):
-        #self.fav_list.addItem(self.title)
         self.place_inf = {'Название': self.title, 'Описание': self.description, 'Адрес': self.adress,
-                          'Координаты': self.coord, 'Ссылка': self.url, 'Расстояние': self.res_distance,
-                          'Суммаризация': self.res_summarize}
+                          'Координаты': str(self.coord[0]) + ', ' + str(self.coord[1]), 'Ссылка': self.url,
+                          'Расстояние': self.res_distance, 'Суммаризация': self.res_summarize}
+        try:
+            con = sqlite3.connect('favourite_places_.sqlite')
+            cur = con.cursor()
+            query = """INSERT INTO places(title, description, adress, coord, url, distance, summarize) VALUES(?, ?, ?, ?, ?, ?, ?)"""
+            cur.execute(query, (self.title, self.description, self.adress, str(self.coord[0]) + ', ' + str(self.coord[1]),
+                                self.url, self.res_distance, self.res_summarize))
+            con.commit()
+            con.close()
+            self.widget.fav_button.setText('Это место уже в избранном')
+            self.flag_fav_button = True
+        except:
+            self.widget.fav_button.setText('Это место уже в избранном')
+            self.flag_fav_button = True
         for key, value in self.place_inf.items():
             print(f'{key}: {value}')
 
@@ -150,10 +179,13 @@ class District(QMainWindow):
             locate = self.locate_user()
         if locate is None:
             self.geolocation_input.setText("Не удалось получить координаты")
+            logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w",
+                                format="%(asctime)s %(levelname)s %(message)s")
+            logging.error("coordinate error")
             return
         self.places_for_listWidget = APIHandler.get_info_from_request(self, place, locate)
         self.get_image_(locate=0, p=1, z=z)
-        print(self.places_for_listWidget)
+        #print(self.places_for_listWidget)
         for index, elem in enumerate(self.places_for_listWidget[:], 1):
             self.listWidget.addItem(str(index) + ". " + elem["title"])
 
@@ -161,7 +193,9 @@ class District(QMainWindow):
         if locate == 0:
             locate = self.locate_user()
         if locate is None:
-            print("Не удалось получить координаты")
+            logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w",
+                                format="%(asctime)s %(levelname)s %(message)s")
+            logging.error("coordinate error")
             self.geolocation_input.setText("Не удалось получить координаты")
             return
         if p == 1:
@@ -170,7 +204,9 @@ class District(QMainWindow):
             image = APIHandler.get_image(self, locate, z=z)
 
         if image is None:
-            print("Не удалось получить изображение")
+            logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w",
+                                format="%(asctime)s %(levelname)s %(message)s")
+            logging.error("image error")
             self.image.setText('Не удалось получить изображение')
             return
 
@@ -185,7 +221,10 @@ class District(QMainWindow):
         coordinates = self.get_current_gps_coordinates()
 
         if not coordinates:
-            self.geolocation_input.setText("Не удалось получить координаты")
+            logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w",
+                                format="%(asctime)s %(levelname)s %(message)s")
+            logging.error("image error")
+            self.geolocation_input.setText("Не удалось получить изображение")
             return
 
         self.geolocation_input.setText(",".join(map(str, coordinates)))
@@ -205,6 +244,9 @@ class District(QMainWindow):
                 self.add_place('парк', locate=locate, z=10)
                 self.get_image_(locate=locate, p=1, z=5)
             except:
+                logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w",
+                                    format="%(asctime)s %(levelname)s %(message)s")
+                logging.error("image error")
                 self.image.setText('Не удалось получить изображение')
 
 

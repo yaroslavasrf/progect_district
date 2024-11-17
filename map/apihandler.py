@@ -1,6 +1,7 @@
 from secret import STATIC_API_KEY
 import requests
 import json
+import logging
 
 
 class APIHandler(object):
@@ -25,15 +26,15 @@ class APIHandler(object):
             url=self.url_for_image,
             params=params,
         )
-        print(request.status_code)
 
         if request.status_code == 200:
             return request.content
-
+        logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w",
+                            format="%(asctime)s %(levelname)s %(message)s")
+        logging.critical("get_image critical")
         return None
 
     def get_info_from_request(self, place, coordinates):
-        print(place, coordinates)
         response = requests.get(
             url=self.url_for_info,
             params={
@@ -43,7 +44,6 @@ class APIHandler(object):
                 "radius": 20000,
             },
         )
-        print(response.status_code)
 
         result = []
         for res in response.json()["results"]:
@@ -52,6 +52,10 @@ class APIHandler(object):
                 description = "\n".join([block["text"] for block in description["blocks"]])
             except Exception as e:
                 description = res["description"]
+                logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w",
+                                    format="%(asctime)s %(levelname)s %(message)s")
+                logging.critical("get_info_from_request critical")
+
 
             try:
                 result.append(
@@ -68,6 +72,13 @@ class APIHandler(object):
                 print(res.keys())
                 print(e)
                 print("- + " * 20)
+                logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w",
+                                    format="%(asctime)s %(levelname)s %(message)s")
+                logging.critical("get_info_from_request critical")
 
-        print(result)
+        if result is None:
+            logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w",
+                                format="%(asctime)s %(levelname)s %(message)s")
+            logging.info("in get_info_from_request result is None")
+
         return result
