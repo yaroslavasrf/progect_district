@@ -13,9 +13,11 @@ class FavouriteListWindow(QDialog):
         self.add_places()
 
         self.delete_all.clicked.connect(self.delete_all_places)
+        self.fav_list.itemClicked.connect(self.openWindowDelete)
+        self.fav_list.itemClicked.connect(self.num_func)
     def add_places(self):
         """
-        Добавляет названия мест из БД в ListWidget с названием fav_list.
+        Добавляет названия мест из БД в fav_list.
 
         Returns
         -------
@@ -27,8 +29,8 @@ class FavouriteListWindow(QDialog):
         res = cur.execute(query).fetchall()
         con.close()
         res = [str(*elem) for elem in res]
-        for index, elem in enumerate(res[:], 1):
-            self.fav_list.addItem(str(index) + ". " + elem)
+        for elem in res[:]:
+            self.fav_list.addItem(elem)
 
     def delete_all_places(self):
         """
@@ -47,3 +49,27 @@ class FavouriteListWindow(QDialog):
         con.close()
         global flag
         flag = False
+    def openWindowDelete(self, clickedItem):
+        self.widget = QtWidgets.QWidget()
+        uic.loadUi("designs/delete.ui", self.widget)
+        self.widget.yes_button.clicked.connect(self.del_object)
+        self.widget.no_button.clicked.connect(self.close_window)
+        self.del_text = clickedItem.text()
+        self.widget.show()
+    def num_func(self, item):
+        self.row = self.fav_list.row(item)
+
+    def del_object(self, item):
+        con = sqlite3.connect('favourite_places_.sqlite')
+        cur = con.cursor()
+        query = """DELETE FROM places WHERE title = ?"""
+        res = cur.execute(query, (self.del_text,))
+        con.commit()
+        con.close()
+        self.fav_list.takeItem(self.row)
+        self.widget.close()
+        global flag
+        flag = False
+
+    def close_window(self):
+        self.widget.close()

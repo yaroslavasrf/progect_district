@@ -89,6 +89,7 @@ class APIHandler(object):
         )
 
         result = []
+        print(response.json())
         for res in response.json()["results"]:
             try:
                 description = json.loads(res["description"])

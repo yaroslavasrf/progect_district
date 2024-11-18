@@ -141,6 +141,7 @@ class District(QMainWindow):
         pic.show()
         if self.flag_fav_button:
             self.widget.fav_button.setText('Это место уже в избранном')
+        print(flag)
         if not flag:
             self.widget.fav_button.setText('Добавить в избранное')
         self.description = self.places_for_listWidget[self.row]['description']

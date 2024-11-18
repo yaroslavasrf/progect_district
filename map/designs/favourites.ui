@@ -6,35 +6,34 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>354</width>
+    <height>442</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QListWidget" name="fav_list">
+  <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>20</x>
      <y>10</y>
-     <width>251</width>
-     <height>281</height>
+     <width>321</width>
+     <height>411</height>
     </rect>
    </property>
-  </widget>
-  <widget class="QPushButton" name="delete_all">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>70</y>
-     <width>81</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Удалить все</string>
-   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QListWidget" name="fav_list"/>
+    </item>
+    <item>
+     <widget class="QPushButton" name="delete_all">
+      <property name="text">
+       <string>Удалить все</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>
