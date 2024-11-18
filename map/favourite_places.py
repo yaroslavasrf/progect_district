@@ -3,6 +3,7 @@ import sys
 from PyQt6 import QtCore, QtWidgets
 import sqlite3
 from PyQt6.QtWidgets import QMainWindow, QApplication, QDialog
+flag = True
 
 
 class FavouriteListWindow(QDialog):
@@ -44,3 +45,5 @@ class FavouriteListWindow(QDialog):
         res = cur.execute(query).fetchall()
         con.commit()
         con.close()
+        global flag
+        flag = False

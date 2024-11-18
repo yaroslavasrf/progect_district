@@ -13,6 +13,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QDesktopServices
 from math import sin, cos, sqrt, atan2, radians
 from favourite_places import FavouriteListWindow
+from favourite_places import flag
 
 class District(QMainWindow):
     def __init__(self):
@@ -138,8 +139,10 @@ class District(QMainWindow):
         pic = self.widget.photo
         pic.setPixmap(pixmap)
         pic.show()
-        if self.flag_fav_button == True:
+        if self.flag_fav_button:
             self.widget.fav_button.setText('Это место уже в избранном')
+        if not flag:
+            self.widget.fav_button.setText('Добавить в избранное')
         self.description = self.places_for_listWidget[self.row]['description']
         self.title = self.places_for_listWidget[self.row]['title']
         self.coord = [round(float(elem), 2) for elem in self.places_for_listWidget[self.row]['coords'].split(',')]
