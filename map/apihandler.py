@@ -84,10 +84,9 @@ class APIHandler(object):
                 "q": place,
                 "lat": coordinates[1],
                 "lon": coordinates[0],
-                "radius": 20000,
+                "radius": 200000,
             },
         )
-
         result = []
         print(response.json())
         for res in response.json()["results"]:

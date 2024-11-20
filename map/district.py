@@ -85,7 +85,7 @@ class District(QMainWindow):
         """
         text = self.description
         res = Llminference().post(text=text)
-        self.widget.description.appendPlainText('СУММАРИЗИРОВАННЫЙ ТЕКСТ:' + str(res))
+        self.widget.description.appendPlainText('\nСуммаризированный текст: ' + str(res))
 
     def keyPressEvent(self, event):
         """
@@ -151,7 +151,7 @@ class District(QMainWindow):
         self.url = self.places_for_listWidget[self.row]['url']
         self.res_distance = self.add_distance()
 
-        self.widget.name.setText(self.title)
+        self.widget.name.setText(self.title.capitalize())
         self.widget.coordinates.setText('Координаты: ' + str(self.coord[0]) + ', ' + str(self.coord[1]))
         self.widget.description.appendPlainText(self.description)
         self.widget.adress.setText('Адрес: ' + self.adress)
@@ -282,7 +282,7 @@ class District(QMainWindow):
         self.get_image_(locate=0, p=True, z=z)
         #print(self.places_for_listWidget)
         for index, elem in enumerate(self.places_for_listWidget[:], 1):
-            self.listWidget.addItem(str(index) + ". " + elem["title"])
+            self.listWidget.addItem(str(index) + ". " + elem["title"].capitalize())
 
     def get_image_(self, locate=0, p=False, z=None):
         """
@@ -381,12 +381,16 @@ class District(QMainWindow):
             self.get_image_(locate=text, z=10)
             self.add_place(place='достопримечательность', locate=text, z=10)
         except:
-            loc = Nominatim(user_agent="ya.sarafanova@gmail.com")
-            getLoc = loc.geocode(text)
+            #print('!!!', getLoc.latitude, getLoc.longitude, text)
             try:
-                text = [getLoc.latitude, getLoc.longitude]
-                self.get_image_(locate=text, z=10)
-                self.add_place(place='достопримечательность', locate=text, z=10)
+                loc = Nominatim(user_agent="ya.sarafanova@gmail.com")
+                getLoc = loc.geocode(text)
+                locate = [getLoc.longitude, getLoc.latitude]
+
+                #self.get_image_(locate=locate)
+                #text = text if text else 'достопримечательность'
+                #text = 'достопримечательноть '
+                self.add_place(place=text, locate=locate)
             except:
                 logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w",
                                     format="%(asctime)s %(levelname)s %(message)s")

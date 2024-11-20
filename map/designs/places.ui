@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>624</width>
-    <height>683</height>
+    <width>626</width>
+    <height>765</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>0</width>
+    <height>160</height>
+   </size>
   </property>
   <property name="font">
    <font>
@@ -18,13 +24,13 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>20</y>
-     <width>591</width>
-     <height>618</height>
+     <x>25</x>
+     <y>22</y>
+     <width>571</width>
+     <height>731</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -100,10 +106,21 @@
         </property>
        </widget>
       </widget>
+      <widget class="QPlainTextEdit" name="description">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>160</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>100</height>
+        </size>
+       </property>
+      </widget>
      </widget>
-    </item>
-    <item>
-     <widget class="QPlainTextEdit" name="description"/>
     </item>
     <item>
      <widget class="QSplitter" name="splitter_2">
